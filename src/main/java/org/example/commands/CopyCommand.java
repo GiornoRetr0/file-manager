@@ -1,4 +1,23 @@
 package org.example.commands;
 
-public class CopyCommand {
+import org.example.api.Command;
+import org.example.api.FileOperation;
+
+import java.nio.file.Path;
+
+public class CopyCommand implements Command {
+    private final FileOperation fileOperation;
+    private final Path source;
+    private final Path target;
+
+    public CopyCommand(FileOperation fileOperation, Path source, Path target) {
+        this.fileOperation = fileOperation;
+        this.source = source;
+        this.target = target;
+    }
+
+    @Override
+    public void execute() {
+        fileOperation.copyFile(source, target);
+    }
 }
