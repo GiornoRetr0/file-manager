@@ -9,96 +9,58 @@ import org.example.utils.InputValidator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FileManagerCLI {
     private final DefaultFileOperation fileOperation;
     private final Path currentDirectory;
+    private final Map<String, CommandFactory> commandMap;
 
     public FileManagerCLI() {
         this.fileOperation = new DefaultFileOperation();
         this.currentDirectory = Paths.get(System.getProperty("user.dir"));
+        this.commandMap = new HashMap<>();
+        initializeCommands();
+    }
+
+    private void initializeCommands() {
+        commandMap.put("move", (args) -> new MoveCommand(fileOperation, resolvePath(args[1]), resolvePath(args[2])));
+        commandMap.put("copy", (args) -> new CopyCommand(fileOperation, resolvePath(args[1]), resolvePath(args[2])));
+        commandMap.put("rename", (args) -> new RenameCommand(fileOperation, resolvePath(args[1]), args[2]));
+        commandMap.put("delete", (args) -> new DeleteCommand(fileOperation, resolvePath(args[1])));
     }
 
     public void run(String[] args) {
+        if (args.length == 0) {
+            System.out.println("No command provided. Available commands: move, copy, rename, delete");
+            return;
+        }
+
         String command = args[0].toLowerCase();
+        CommandFactory commandFactory = commandMap.get(command);
+
+        if (commandFactory == null) {
+            System.out.println("Invalid command. Available commands: move, copy, rename, delete");
+            return;
+        }
 
         try {
-            switch (command) {
-                case "move":
-                    if (args.length < 3) {
-                        System.out.println("Usage: move <source> <target>");
-                        return;
-                    }
-                    executeMove(args[1], args[2]);
-                    break;
-                case "copy":
-                    if (args.length < 3) {
-                        System.out.println("Usage: copy <source> <target>");
-                        return;
-                    }
-                    executeCopy(args[1], args[2]);
-                    break;
-                case "rename":
-                    if (args.length < 3) {
-                        System.out.println("Usage: rename <source> <newName>");
-                        return;
-                    }
-                    executeRename(args[1], args[2]);
-                    break;
-                case "delete":
-                    if (args.length < 2) {
-                        System.out.println("Usage: delete <source>");
-                        return;
-                    }
-                    executeDelete(args[1]);
-                    break;
-                default:
-                    System.out.println("Invalid command. Available commands: move, copy, rename, delete");
-            }
+            Command cmd = commandFactory.createCommand(args);
+            cmd.execute();
         } catch (FileOperationException e) {
             System.out.println("Operation failed: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid arguments: " + e.getMessage());
         }
     }
 
-    private void executeMove(String sourceStr, String targetStr) {
-        Path source = currentDirectory.resolve(sourceStr);
-        Path target = currentDirectory.resolve(targetStr);
-        if (!InputValidator.doesPathExist(source)) {
-            System.out.println("Source file does not exist.");
-            return;
-        }
-        Command moveCommand = new MoveCommand(fileOperation, source, target);
-        moveCommand.execute();
+    private Path resolvePath(String pathStr) {
+        return currentDirectory.resolve(pathStr);
     }
 
-    private void executeCopy(String sourceStr, String targetStr) {
-        Path source = currentDirectory.resolve(sourceStr);
-        Path target = currentDirectory.resolve(targetStr);
-        if (!InputValidator.doesPathExist(source)) {
-            System.out.println("Source file does not exist.");
-            return;
-        }
-        Command copyCommand = new CopyCommand(fileOperation, source, target);
-        copyCommand.execute();
-    }
-
-    private void executeRename(String sourceStr, String newName) {
-        Path source = currentDirectory.resolve(sourceStr);
-        if (!InputValidator.doesPathExist(source)) {
-            System.out.println("Source file does not exist.");
-            return;
-        }
-        Command renameCommand = new RenameCommand(fileOperation, source, newName);
-        renameCommand.execute();
-    }
-
-    private void executeDelete(String sourceStr) {
-        Path source = currentDirectory.resolve(sourceStr);
-        if (!InputValidator.doesPathExist(source)) {
-            System.out.println("Source file does not exist.");
-            return;
-        }
-        Command deleteCommand = new DeleteCommand(fileOperation, source);
-        deleteCommand.execute();
+    @FunctionalInterface
+    private interface CommandFactory {
+        Command createCommand(String[] args);
     }
 }
