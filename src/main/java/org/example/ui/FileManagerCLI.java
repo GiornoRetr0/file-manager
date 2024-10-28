@@ -29,6 +29,7 @@ public class FileManagerCLI {
         commandMap.put("copy", (args) -> new CopyCommand(fileOperation, resolvePath(args[1]), resolvePath(args[2])));
         commandMap.put("rename", (args) -> new RenameCommand(fileOperation, resolvePath(args[1]), args[2]));
         commandMap.put("delete", (args) -> new DeleteCommand(fileOperation, resolvePath(args[1])));
+        commandMap.put("navigate",  (args) -> new FileNavigator());
     }
 
     public void run(String[] args) {

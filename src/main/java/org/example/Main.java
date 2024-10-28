@@ -12,16 +12,7 @@ public class Main {
             return;
         }
 
-        String command = args[0].toLowerCase();
-        if (command.equals("navigate")) {
-            try {
-                new FileNavigator().start();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            FileManagerCLI cli = new FileManagerCLI();
-            cli.run(args);
-        }
+        FileManagerCLI cli = new FileManagerCLI();
+        cli.run(args);
     }
 }
