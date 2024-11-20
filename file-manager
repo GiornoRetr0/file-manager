@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Get the directory where the script is located
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+JAR_PATH="$SCRIPT_DIR/target/file-manager-1.0-SNAPSHOT.jar"
+LAST_DIR_FILE="$HOME/.file_navigator_last_dir"
+
+# Check if jar exists
+if [ ! -f "$JAR_PATH" ]; then
+    echo "Error: Jar file not found at $JAR_PATH"
+    echo "Please run 'mvn clean package' first"
+    exit 1
+fi
+
+# Function to run jar with commands
+run_file_manager() {
+    if [ $# -eq 0 ]; then
+        java -jar "$JAR_PATH" help
+    else
+        if [ "$1" = "navigate" ]; then
+            java -jar "$JAR_PATH" "$@"
+            exit_code=$?
+            if [ $exit_code -eq 0 ] && [ -f "$LAST_DIR_FILE" ]; then
+                # shellcheck disable=SC2164
+                cd "$(cat "$LAST_DIR_FILE")"
+                rm "$LAST_DIR_FILE"
+            fi
+        else
+            java -jar "$JAR_PATH" "$@"
+        fi
+    fi
+}
+
+run_file_manager "$@"
