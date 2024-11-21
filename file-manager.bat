@@ -1,4 +1,6 @@
 @echo off
+setlocal EnableDelayedExpansion
+
 rem file-manager.bat
 
 rem Get script directory
@@ -13,20 +15,24 @@ if not exist "%JAR_PATH%" (
     exit /b 1
 )
 
-rem Handle commands
-if "%~1"=="" (
-    java -jar "%JAR_PATH%" help
-) else (
-    if "%~1"=="navigate" (
-        java -jar "%JAR_PATH%" %*
-        if %ERRORLEVEL% EQU 0 (
-            if exist "%LAST_DIR_FILE%" (
-                set /p NEW_DIR=<"%LAST_DIR_FILE%"
-                cd /d "%NEW_DIR%"
-                del "%LAST_DIR_FILE%"
-            )
-        )
-    ) else (
-        java -jar "%JAR_PATH%" %*
-    )
+rem Function to change directory
+:change_directory
+if exist "%LAST_DIR_FILE%" (
+    set /p NEW_DIR=<"%LAST_DIR_FILE%"
+    cd /d "!NEW_DIR!"
+    del "%LAST_DIR_FILE%"
 )
+goto :eof
+
+rem Main execution
+if "%~1"=="" (
+    java -jar "%JAR_PATH%" navigate
+    call :change_directory
+) else if "%~1"=="navigate" (
+    java -jar "%JAR_PATH%" %*
+    call :change_directory
+) else (
+    java -jar "%JAR_PATH%" %*
+)
+
+endlocal

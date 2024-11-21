@@ -12,19 +12,23 @@ if [ ! -f "$JAR_PATH" ]; then
     exit 1
 fi
 
+# Function to change directory if last_dir file exists
+change_directory() {
+    if [ -f "$LAST_DIR_FILE" ]; then
+        cd "$(cat "$LAST_DIR_FILE")" || return
+        rm "$LAST_DIR_FILE"
+    fi
+}
+
 # Function to run jar with commands
 run_file_manager() {
     if [ $# -eq 0 ]; then
-        java -jar "$JAR_PATH" help
+        java -jar "$JAR_PATH" navigate
+        change_directory
     else
         if [ "$1" = "navigate" ]; then
             java -jar "$JAR_PATH" "$@"
-            exit_code=$?
-            if [ $exit_code -eq 0 ] && [ -f "$LAST_DIR_FILE" ]; then
-                # shellcheck disable=SC2164
-                cd "$(cat "$LAST_DIR_FILE")"
-                rm "$LAST_DIR_FILE"
-            fi
+            change_directory
         else
             java -jar "$JAR_PATH" "$@"
         fi

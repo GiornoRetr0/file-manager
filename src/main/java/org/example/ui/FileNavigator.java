@@ -208,6 +208,7 @@ public class FileNavigator implements Command {
 
     private void saveLastDirectory() {
         try {
+            Path lastDirFile = Paths.get(System.getProperty("user.home"), ".file_navigator_last_dir");
             Files.writeString(LAST_DIR_FILE, currentDirectory.toString());
         } catch (IOException e) {
             logger.warning("Failed to save last directory: " + e.getMessage());
