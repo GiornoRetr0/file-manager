@@ -46,13 +46,13 @@ public class DeleteCommand implements Command {
         return false;
     }
 
-    @Override
-    public String getDescription() {
-        return "Deletes a file or directory";
-    }
-
-    @Override
-    public List<String> getRequiredParameters() {
-        return Collections.singletonList("source");
-    }
+//    @Override
+//    public String getDescription() {
+//        return "Deletes a file or directory";
+//    }
+//
+//    @Override
+//    public List<String> getRequiredParameters() {
+//        return Collections.singletonList("source");
+//    }
 }

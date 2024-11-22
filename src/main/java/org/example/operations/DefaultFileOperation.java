@@ -9,6 +9,8 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class DefaultFileOperation implements FileOperation {
     private static final Logger logger = Logger.getLogger(DefaultFileOperation.class.getName());
@@ -20,7 +22,7 @@ public class DefaultFileOperation implements FileOperation {
             if (target != null) {
                 validatePath(target.getParent());
                 if (Files.exists(target)) {
-                    throw new FileOperationException("Target already exists: " + target);
+                    throw FileOperationException.fileAlreadyExists(target);
                 }
             }
             return true;
@@ -62,7 +64,7 @@ public class DefaultFileOperation implements FileOperation {
             logger.info(String.format("File renamed from %s to %s", source, target));
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Error renaming file", e);
-            throw new FileOperationException("Failed to rename file: " + e.getMessage());
+            throw FileOperationException.errorRenamingFile(source, newName, e);
         }
     }
 
@@ -74,7 +76,7 @@ public class DefaultFileOperation implements FileOperation {
             logger.info(String.format("File deleted successfully: %s", source));
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Error deleting file", e);
-            throw new FileOperationException("Failed to delete file: " + e.getMessage());
+            throw FileOperationException.errorDeletingFile(source, e);
         }
     }
 
@@ -85,8 +87,48 @@ public class DefaultFileOperation implements FileOperation {
             String permissions = Files.getPosixFilePermissions(path).toString();
             return new FileMetadata(path, attrs, permissions);
         } catch (IOException e) {
-            throw new FileOperationException("Failed to read file metadata: " + path, e);
+            throw FileOperationException.errorMetadata(path, e);
         }
+    }
+
+    @Override
+    public void compressFile(Path source) throws FileOperationException {
+        try {
+            Path target = Paths.get(source.toString() + ".zip");
+            
+            try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(target))) {
+                if (Files.isDirectory(source)) {
+                    compressDirectory(source, source.getFileName(), zos);
+                } else {
+                    compressFile(source, source.getFileName(), zos);
+                }
+            }
+            logger.info(String.format("Successfully compressed %s to %s", source, target));
+        } catch (IOException e) {
+            throw new FileOperationException("Failed to compress: " + source, e);
+        }
+    }
+
+    private void compressDirectory(Path sourceDir, Path fileName, ZipOutputStream zos) throws IOException {
+        Files.walk(sourceDir)
+            .filter(path -> !Files.isDirectory(path))
+            .forEach(path -> {
+                ZipEntry zipEntry = new ZipEntry(sourceDir.relativize(path).toString());
+                try {
+                    zos.putNextEntry(zipEntry);
+                    Files.copy(path, zos);
+                    zos.closeEntry();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+    }
+
+    private void compressFile(Path source, Path fileName, ZipOutputStream zos) throws IOException {
+        ZipEntry zipEntry = new ZipEntry(fileName.toString());
+        zos.putNextEntry(zipEntry);
+        Files.copy(source, zos);
+        zos.closeEntry();
     }
 
     private void validatePath(Path path) throws FileOperationException {

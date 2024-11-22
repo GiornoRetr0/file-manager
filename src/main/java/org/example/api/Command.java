@@ -37,13 +37,13 @@ public interface Command {
         return false;
     }
 
-    /**
-     * @return command usage description
-     */
-    String getDescription();
-
-    /**
-     * @return list of required parameters for command
-     */
-    List<String> getRequiredParameters();
+//    /**
+//     * @return command usage description
+//     */
+//    String getDescription();
+//
+//    /**
+//     * @return list of required parameters for command
+//     */
+//    List<String> getRequiredParameters();
 }

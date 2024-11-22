@@ -35,4 +35,12 @@ public class FileOperationException extends RuntimeException {
     public static FileOperationException errorDeletingFile(Path path, Throwable cause) {
         return new FileOperationException("Error deleting file: " + path, cause);
     }
+
+    public static FileOperationException errorMetadata(Path path, Throwable cause) {
+        return new FileOperationException("Failed to read file metadata: " + path, cause);
+    }
+
+    public static FileOperationException errorCompressingFile(Path source){
+        return new FileOperationException("Failed to compress file : " + source);
+    }
 }

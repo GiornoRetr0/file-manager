@@ -12,6 +12,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 import org.example.api.Command;
 import org.example.api.FileMetadata;
 import org.example.api.FileOperation;
+import org.example.commands.CompressCommand;
 import org.example.exceptions.FileOperationException;
 import org.example.operations.DefaultFileOperation;
 
@@ -21,7 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Collections;
 import java.util.logging.Logger;
 
 public class FileNavigator implements Command {
@@ -84,6 +84,9 @@ public class FileNavigator implements Command {
                     if (key.getCharacter() == 'i') {
                         showFileInfo(currentFiles.get(selectedIndex));
                     }
+                    if (key.getCharacter() == 'c') {
+                        compressSelected();
+                    }
                 }
             }
         }
@@ -139,7 +142,7 @@ public class FileNavigator implements Command {
         // Draw footer
         tg.setForegroundColor(TextColor.ANSI.WHITE);
         tg.putString(0, size.getRows() - 1,
-                "↑↓:Navigate  Enter:Open  Backspace:Parent  q:Quit  i:Info");
+                "↑↓:Navigate  Enter:Open  Backspace:Parent  q:Quit  i:Info  c:Compress");
 
         screen.refresh();
     }
@@ -215,13 +218,20 @@ public class FileNavigator implements Command {
         }
     }
 
-    @Override
-    public String getDescription() {
-        return "Interactive file navigator";
+    private void compressSelected() throws IOException {
+        Path selected = currentFiles.get(selectedIndex);
+        Path target = Paths.get(selected.toString());
+        new CompressCommand(fileOperation, target).execute();
+        updateFileList();
     }
 
-    @Override
-    public List<String> getRequiredParameters() {
-        return Collections.emptyList(); // Navigator doesn't need parameters
-    }
+//    @Override
+//    public String getDescription() {
+//        return "Interactive file navigator";
+//    }
+//
+//    @Override
+//    public List<String> getRequiredParameters() {
+//        return Collections.emptyList(); // Navigator doesn't need parameters
+//    }
 }

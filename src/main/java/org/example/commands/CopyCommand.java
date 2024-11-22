@@ -68,13 +68,13 @@ public class CopyCommand implements Command {
         return true;
     }
 
-    @Override
-    public String getDescription() {
-        return "Copies a file or directory from source to target location";
-    }
-
-    @Override
-    public List<String> getRequiredParameters() {
-        return Arrays.asList("source", "target");
-    }
+//    @Override
+//    public String getDescription() {
+//        return "Copies a file or directory from source to target location";
+//    }
+//
+//    @Override
+//    public List<String> getRequiredParameters() {
+//        return Arrays.asList("source", "target");
+//    }
 }

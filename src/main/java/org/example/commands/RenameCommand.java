@@ -74,13 +74,13 @@ public class RenameCommand implements Command {
         }
     }
 
-    @Override
-    public String getDescription() {
-        return "Renames a file or directory";
-    }
-
-    @Override
-    public List<String> getRequiredParameters() {
-        return Arrays.asList("source", "newName");
-    }
+//    @Override
+//    public String getDescription() {
+//        return "Renames a file or directory";
+//    }
+//
+//    @Override
+//    public List<String> getRequiredParameters() {
+//        return Arrays.asList("source", "newName");
+//    }
 }

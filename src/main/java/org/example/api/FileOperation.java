@@ -56,6 +56,13 @@ public interface FileOperation {
     }
 
     /**
+     * Compresses file into zip file
+     * @param source Path of the file/directory to delete
+     * @throws FileOperationException if operation fails
+     */
+    void compressFile(Path source) throws FileOperationException;
+
+    /**
      * Gets file metadata for given path
      * @return FileMetadata containing size, permissions, etc.
      */

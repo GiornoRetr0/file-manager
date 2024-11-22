@@ -30,6 +30,7 @@ public class FileManagerCLI {
         commandHelp.put("copy", "copy <source> <target> - Copy a file/directory to target location");
         commandHelp.put("rename", "rename <file> <newName> - Rename a file/directory");
         commandHelp.put("delete", "delete <file> - Delete a file/directory");
+        commandHelp.put("compress", "compress <source> - Compress file into zip archive");
         commandHelp.put("navigate", "navigate - Open interactive file navigator");
         commandHelp.put("undo", "undo - Undo last operation if possible");
     }
@@ -39,6 +40,7 @@ public class FileManagerCLI {
         commandMap.put("copy", (args) -> new CopyCommand(fileOperation, resolvePath(args[1]), resolvePath(args[2])));
         commandMap.put("rename", (args) -> new RenameCommand(fileOperation, resolvePath(args[1]), args[2]));
         commandMap.put("delete", (args) -> new DeleteCommand(fileOperation, resolvePath(args[1])));
+        commandMap.put("compress", (args) -> new CompressCommand(fileOperation, resolvePath(args[1])));
         commandMap.put("navigate", (args) -> new FileNavigator());
     }
 
@@ -99,11 +101,12 @@ public class FileManagerCLI {
         }
     }
 
-    private void validateArguments(String command, String[] args) {
+    private void  validateArguments(String command, String[] args) {
         int requiredArgs = switch (command) {
             case "move", "copy" -> 3;
             case "rename" -> 3;
             case "delete" -> 2;
+            case "compress" -> 2;
             case "navigate" -> 1;
             default -> 0;
         };
