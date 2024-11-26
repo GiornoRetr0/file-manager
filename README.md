@@ -53,7 +53,7 @@ mvn clean package
   ```
 - Compress files/directories:
   ```bash
-  ./file-manager compress <source> [target]
+  ./file-manager compress <source>
   ```
 
 ### Navigation Keys
